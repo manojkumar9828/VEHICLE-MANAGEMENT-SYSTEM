@@ -1,101 +1,62 @@
-# vary
+# call-bind-apply-helpers <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
 
-[![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
-[![Node.js Version][node-version-image]][node-version-url]
-[![Build Status][travis-image]][travis-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
+[![github actions][actions-image]][actions-url]
+[![coverage][codecov-image]][codecov-url]
+[![dependency status][deps-svg]][deps-url]
+[![dev dependency status][dev-deps-svg]][dev-deps-url]
+[![License][license-image]][license-url]
+[![Downloads][downloads-image]][downloads-url]
 
-Manipulate the HTTP Vary header
+[![npm badge][npm-badge-png]][package-url]
 
-## Installation
+Helper functions around Function call/apply/bind, for use in `call-bind`.
 
-This is a [Node.js](https://nodejs.org/en/) module available through the
-[npm registry](https://www.npmjs.com/). Installation is done using the
-[`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally): 
+The only packages that should likely ever use this package directly are `call-bind` and `get-intrinsic`.
+Please use `call-bind` unless you have a very good reason not to.
 
-```sh
-$ npm install vary
-```
-
-## API
-
-<!-- eslint-disable no-unused-vars -->
-
-```js
-var vary = require('vary')
-```
-
-### vary(res, field)
-
-Adds the given header `field` to the `Vary` response header of `res`.
-This can be a string of a single field, a string of a valid `Vary`
-header, or an array of multiple fields.
-
-This will append the header if not already listed, otherwise leaves
-it listed in the current location.
-
-<!-- eslint-disable no-undef -->
-
-```js
-// Append "Origin" to the Vary header of the response
-vary(res, 'Origin')
-```
-
-### vary.append(header, field)
-
-Adds the given header `field` to the `Vary` response header string `header`.
-This can be a string of a single field, a string of a valid `Vary` header,
-or an array of multiple fields.
-
-This will append the header if not already listed, otherwise leaves
-it listed in the current location. The new header string is returned.
-
-<!-- eslint-disable no-undef -->
-
-```js
-// Get header string appending "Origin" to "Accept, User-Agent"
-vary.append('Accept, User-Agent', 'Origin')
-```
-
-## Examples
-
-### Updating the Vary header when content is based on it
-
-```js
-var http = require('http')
-var vary = require('vary')
-
-http.createServer(function onRequest (req, res) {
-  // about to user-agent sniff
-  vary(res, 'User-Agent')
-
-  var ua = req.headers['user-agent'] || ''
-  var isMobile = /mobi|android|touch|mini/i.test(ua)
-
-  // serve site, depending on isMobile
-  res.setHeader('Content-Type', 'text/html')
-  res.end('You are (probably) ' + (isMobile ? '' : 'not ') + 'a mobile user')
-})
-```
-
-## Testing
+## Getting started
 
 ```sh
-$ npm test
+npm install --save call-bind-apply-helpers
 ```
 
-## License
+## Usage/Examples
 
-[MIT](LICENSE)
+```js
+const assert = require('assert');
+const callBindBasic = require('call-bind-apply-helpers');
 
-[npm-image]: https://img.shields.io/npm/v/vary.svg
-[npm-url]: https://npmjs.org/package/vary
-[node-version-image]: https://img.shields.io/node/v/vary.svg
-[node-version-url]: https://nodejs.org/en/download
-[travis-image]: https://img.shields.io/travis/jshttp/vary/master.svg
-[travis-url]: https://travis-ci.org/jshttp/vary
-[coveralls-image]: https://img.shields.io/coveralls/jshttp/vary/master.svg
-[coveralls-url]: https://coveralls.io/r/jshttp/vary
-[downloads-image]: https://img.shields.io/npm/dm/vary.svg
-[downloads-url]: https://npmjs.org/package/vary
+function f(a, b) {
+	assert.equal(this, 1);
+	assert.equal(a, 2);
+	assert.equal(b, 3);
+	assert.equal(arguments.length, 2);
+}
+
+const fBound = callBindBasic([f, 1]);
+
+delete Function.prototype.call;
+delete Function.prototype.bind;
+
+fBound(2, 3);
+```
+
+## Tests
+
+Clone the repo, `npm install`, and run `npm test`
+
+[package-url]: https://npmjs.org/package/call-bind-apply-helpers
+[npm-version-svg]: https://versionbadg.es/ljharb/call-bind-apply-helpers.svg
+[deps-svg]: https://david-dm.org/ljharb/call-bind-apply-helpers.svg
+[deps-url]: https://david-dm.org/ljharb/call-bind-apply-helpers
+[dev-deps-svg]: https://david-dm.org/ljharb/call-bind-apply-helpers/dev-status.svg
+[dev-deps-url]: https://david-dm.org/ljharb/call-bind-apply-helpers#info=devDependencies
+[npm-badge-png]: https://nodei.co/npm/call-bind-apply-helpers.png?downloads=true&stars=true
+[license-image]: https://img.shields.io/npm/l/call-bind-apply-helpers.svg
+[license-url]: LICENSE
+[downloads-image]: https://img.shields.io/npm/dm/call-bind-apply-helpers.svg
+[downloads-url]: https://npm-stat.com/charts.html?package=call-bind-apply-helpers
+[codecov-image]: https://codecov.io/gh/ljharb/call-bind-apply-helpers/branch/main/graphs/badge.svg
+[codecov-url]: https://app.codecov.io/gh/ljharb/call-bind-apply-helpers/
+[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/call-bind-apply-helpers
+[actions-url]: https://github.com/ljharb/call-bind-apply-helpers/actions
